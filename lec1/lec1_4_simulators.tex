@@ -1,0 +1,82 @@
+\begin{frame}{Simulators}
+\begin{itemize}
+    \item<1-> \emph{Statevector simulator}: output the complex vector of amplitudes
+    \item<2-> \emph{Unitary simulator}: output the complex matrix representing the transformation performed by your circuit
+    \item<3-> \emph{``QASM" simulator}: mime the behaviour of the real hardware, output the distribution of the possible outcomes
+    \begin{itemize}
+        \item<4-> error due to probabilistic nature of the processing
+        \item<5-> \(\neq\) noise (which can be simulated too)
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{The code (3)}
+\begin{minted}{python}
+from qiskit import Aer
+Aer.backends()
+
+statevector_sim = Aer.get_backend('statevector_simulator')
+unitary_sim = Aer.get_backend('unitary_simulator')
+qasm_sim = Aer.get_backend('qasm_simulator')
+
+qc = QuantumCircuit(2, 2)
+qc.h(0)
+qc.cx(0, 1)
+
+result = execute(qc, backend=statevector_sim, shots=1).result()
+    .get_statevector()
+# array([0.70710678+0.j, 0.        +0.j, 
+#        0.        +0.j, 0.70710678+0.j])
+
+result = execute(qc, backend=unitary_sim, shots=1).result().get_unitary()
+# array([[ 0.70710678+0.00000000e+00j,  0.70710678-8.65956056e-17j,
+#          0.        +0.00000000e+00j,  0.        +0.00000000e+00j],
+#        [ 0.        +0.00000000e+00j,  0.        +0.00000000e+00j,
+#          0.70710678+0.00000000e+00j, -0.70710678+8.65956056e-17j],
+#        [ 0.        +0.00000000e+00j,  0.        +0.00000000e+00j,
+#          0.70710678+0.00000000e+00j,  0.70710678-8.65956056e-17j],
+#        [ 0.70710678+0.00000000e+00j, -0.70710678+8.65956056e-17j,
+#          0.        +0.00000000e+00j,  0.        +0.00000000e+00j]])
+
+result = execute(qc, backend=qasm_sim, shots=1000).result().get_counts()
+# {'00': 1000}
+
+qc.measure(0, 0)
+qc.measure(1, 1)
+result = execute(qc, backend=qasm_sim, shots=1000).result().get_counts()
+# {'00 00': 506, '11 00': 494}
+\end{minted}
+\end{frame}
+
+
+\begin{frame}[fragile]{The code (4)}
+\begin{minted}{python}
+result = execute(qc, backend=unitary_sim, shots=1).result()
+    .get_unitary()
+# array([
+#  [ 0.70710678+0.00000000e+00j,  0.70710678-8.65956056e-17j,
+#    0.        +0.00000000e+00j,  0.        +0.00000000e+00j],
+#  [ 0.        +0.00000000e+00j,  0.        +0.00000000e+00j,
+#    0.70710678+0.00000000e+00j, -0.70710678+8.65956056e-17j],
+#  [ 0.        +0.00000000e+00j,  0.        +0.00000000e+00j,
+#    0.70710678+0.00000000e+00j,  0.70710678-8.65956056e-17j],
+#  [ 0.70710678+0.00000000e+00j, -0.70710678+8.65956056e-17j,
+#    0.        +0.00000000e+00j,  0.        +0.00000000e+00j]
+# ])
+\end{minted}
+\end{frame}
+
+
+\begin{frame}[fragile]{The code (5)}
+\begin{minted}{python}
+result = execute(qc, backend=qasm_sim, shots=1000).result()
+    .get_counts()
+# {'00': 1000}
+
+qc.measure(0, 0)
+qc.measure(1, 1)
+result = execute(qc, backend=qasm_sim, shots=1000).result()
+    .get_counts()
+# {'00': 503, '11': 497}
+\end{minted}
+\end{frame}

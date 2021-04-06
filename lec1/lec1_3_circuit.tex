@@ -1,0 +1,61 @@
+\begin{frame}{The Quantum Circuit}
+\begin{itemize}
+    \item<1-> define the circuit (\code{QuantumCircuit})
+    \begin{itemize}
+        \item<2-> 1+ \code{QuantumRegister} (w/ optional name)
+        \item<3-> 0+ \code{ClassicalRegister} (w/ optional name)
+    \end{itemize}
+    \item<4-> draw the circuit (method \code{draw} of \code{QuantumCircuit})
+    \item<5-> add the gates (methods of \code{QuantumCircuit})
+    \begin{itemize}
+        \item<6-> \code{.x(qubit)}
+        \item<8-> \code{.h(qubit)}
+        \item<9-> \code{.cx(control qubit, target qubit)}
+        \item<10-> \code{.rx(theta, qubit)}
+        \item<11-> \code{.crx(theta, control qubit, target qubit)}
+        \item<12-> optionally use indexes instead of qubit
+        \begin{itemize}
+            \item<13-> depends on the order you insert the registers
+            \item<14-> be consistent w/ the notation
+        \end{itemize}
+    \end{itemize}
+    \item<15-> add the measurements (method of \code{QuantumCircuit})
+    \begin{itemize}
+        \item<15-> \code{.measure(qubit, cbit)}
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]{The code (1)}
+\begin{minted}{python}
+from qiskit import *
+
+# first circuit
+qr = QuantumRegister(2, 'qreg')
+qc = QuantumCircuit(qr)
+qc.draw()
+
+qc.h(qr[0])
+qc.cx(qr[0], qr[1])
+qc.rx(0.1, qr[1])
+qc.draw()
+\end{minted}
+\end{frame}
+
+
+\begin{frame}[fragile]{The code (2)}
+\begin{minted}{python}
+# second circuit
+qra = QuantumRegister(2, 'qa')
+qrb = QuantumRegister(2, 'qb')
+cr = ClassicalRegister(2, 'creg')
+qc = QuantumCircuit(qra, qrb, cr)
+qc.cx(qra[0], qra[1])
+qc.cy(qrb[0], qrb[1])
+qc.cx(0, 1)
+qc.cy(2, 3)
+qc.measure(0, 0)
+qc.draw()
+\end{minted}
+\end{frame}

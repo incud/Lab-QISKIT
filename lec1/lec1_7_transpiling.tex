@@ -1,0 +1,25 @@
+\begin{frame}{Transpiling}
+Given 
+\begin{itemize}
+    \item a circuit
+    \item an universal set on ``known" gates
+    \item a topology (pairs of adjacent qubits)
+\end{itemize}
+construct a circuit equivalent which can be run on the given configuration.
+
+\only<2->{\bigskip Different (real) machines have different configurations, and the transpiling operation will lead to different circuits. }
+\end{frame}
+
+\begin{frame}[fragile]{The code (8)}
+\begin{minted}{python}
+qc = QuantumCircuit(2)
+
+amp = array([0.11926544+0.j, 0.23853088+0.23853088j, 
+             0.35779632+0.47706176j, 0.71559264+0.06559599j])
+qc.initialize(amp)
+qc.size() # 1
+
+qc2 = transpile(qc, basis_gates=['u3', 'cx'])
+qc2.size() # 6
+\end{minted}
+\end{frame}

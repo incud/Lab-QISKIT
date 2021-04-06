@@ -1,0 +1,21 @@
+\begin{frame}[fragile]{Execution on IBM machines}
+
+Register on IBMQ, then visit \url{https://quantum-computing.ibm.com/account} and copy your token. Then execute (once): \medskip
+
+\begin{minted}{python}
+from qiskit import IBMQ
+IBMQ.save_account('insert_token_here')
+\end{minted}
+
+\medskip Finally access your real backends through:\medskip
+
+\begin{minted}{python}
+IBMQ.load_account()
+provider = IBMQ.get_provider()
+# provider.backends() lists the available machines
+backend = provider.get_backend('ibmq_santiago')
+counts = execute(qc, backend, shots=1000).result().get_counts()
+\end{minted}
+
+\medskip Additional information on \url{github.com/Qiskit/qiskit-ibmq-provider}. 
+\end{frame}

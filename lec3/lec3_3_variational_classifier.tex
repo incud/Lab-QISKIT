@@ -1,0 +1,126 @@
+\begin{frame}{Variational Quantum Classifier}
+    
+A variational quantum circuit contains parameterized gates whose values depend on some variables $\theta_1, ..., \theta_n$.
+
+\begin{enumerate}
+    \item Instantiate the circuit choosing random $\theta$s;
+    \item Run the circuit and obtain output $y$;
+    \item Use $y$ to compute a loss function and update $\theta$s accordingly.
+\end{enumerate}
+
+\bigskip\alert{Advantage}: The iterative optimization of the parameters allows us to circumvent the high-depth circuit.
+
+\medskip\structure{Disadvantage}: No assurance of speedup. 
+\end{frame}
+
+
+
+
+
+\begin{frame}{Variational Quantum Classifier (2)}
+
+\begin{center}
+    \begin{quantikz}
+    \lstick[wires=3]{$\ket{0}$} 
+    & \gate[wires=3][2cm]{U(x)} & \gate[wires=3][2cm]{U(\theta)} & \meter{} \rstick[wires=3]{$y$} \\
+    & \qw & \qw & \meter{}  \\
+    & \qw & \qw & \meter{}  \\
+    \end{quantikz}
+\end{center}
+
+\begin{itemize}
+    \item input $x \in \mathbb{R}^n$ is encoded through \emph{feature map} $U(x)$;
+    \item the state evolves through variational form $U(\theta)$;
+    \item the parameters $\theta$s are chosen to minimize a certain loss function.
+\end{itemize}
+
+\end{frame}
+
+
+
+
+\begin{frame}{Variational Quantum Classifier (3)}
+
+Any variational circuit is a QNN. 
+\begin{itemize}
+    \item Mathematically, a QNN is a rather different object compared to classical NN;
+    \item the analogy refers to:
+    \begin{itemize}
+        \item ``modular" nature of quantum gates in a circuit;
+        \item use of tricks from training neural networks in the optimization of quantum algorithms.
+    \end{itemize}
+\end{itemize}
+
+\begin{center}
+    \scalebox{0.9}{
+    \begin{quantikz}
+        \qw
+            & \gate{RY(\theta_1)} \gategroup[wires=3,steps=4,style={inner sep=-0.2pt}]{hidden layer 1}
+            & \ctrl{1}           
+            & \ctrl{2} 
+            & \qw
+            & \gate{RY(\theta_4)} \gategroup[wires=3,steps=4,style={inner sep=-0.2pt}]{hidden layer 2}
+            & \ctrl{1}           
+            & \ctrl{2} 
+            & \qw 
+            & \qw \\
+        \qw 
+            & \gate{RY(\theta_2)} 
+            & \targ{}  
+            & \qw      
+            & \ctrl{1}
+            & \gate{RY(\theta_5)} 
+            & \targ{}  
+            & \qw      
+            & \ctrl{1}
+            & \qw \\
+        \qw 
+            & \gate{RY(\theta_3)} 
+            & \qw      
+            & \targ{}  
+            & \targ{}
+            & \gate{RY(\theta_6)} 
+            & \qw      
+            & \targ{}  
+            & \targ{}
+            & \qw 
+    \end{quantikz}}
+\end{center}
+
+\end{frame}
+
+
+\begin{frame}{Barren plateau}
+
+\begin{block}{Barren Plateau}
+When minimizing the cost function, we might have exponentially vanishing gradients, known as barren plateau landscapes. In that case, the network cannot be efficiently trained.
+\end{block}
+
+\begin{itemize}
+    \item Depends on the network architecture (Cerezo et al., 2020);
+    \item Depends on the feature map (Abbas et al., 2020). 
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]{Your turn!}
+Try the VQC. \bigskip
+
+\begin{minted}{python}
+IRIS_FEATURES = 4
+optimizer = ADAM(maxiter=100, lr=0.1)
+feature_map = ZZFeatureMap(feature_dimension=IRIS_FEATURES)
+var_form = TwoLocal(IRIS_FEATURES)
+vqc = VQC(optimizer, feature_map, var_form, 
+    training_input, test_input)
+
+backend = Aer.get_backend('statevector_simulator')
+quantum_instance = QuantumInstance(backend, shots=1)
+result = vqc.run(quantum_instance)
+\end{minted}
+\end{frame}
+
+
+
+
+

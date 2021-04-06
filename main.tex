@@ -1,0 +1,36 @@
+\documentclass[handout]{beamer}
+%\documentclass[notes]{beamer}
+\usepackage{pgfpages}
+%\setbeameroption{show notes on second screen}
+%\setbeamertemplate{note page}[plain]
+\usepackage{minted}
+
+\usetheme{UiB}
+\setbeamertemplate{navigation symbols}{}
+\usepackage{quantikz}
+\usepackage{booktabs}
+\usepackage{inconsolata}
+\usepackage{physics}
+\usetikzlibrary{shapes}
+
+\newcommand{\code}[1]{\texttt{#1}}
+
+\newcommand{\source}[1]{%
+    \setbeamertemplate{footnote}[unnumbered]%
+    \footnotetext{#1}%
+}
+
+\title{Quantum Computing (Lab)}
+\author{Incudini Massimiliano \\ Alessandra Di Pierro}
+\institute{Università degli Studi di Verona}
+\date{\today}
+
+\begin{document}
+
+\input{lec1/lec1}
+
+\input{lec2/lec2}
+
+\input{lec3/lec3}
+
+\end{document}

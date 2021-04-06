@@ -1,0 +1,117 @@
+\begin{frame}{Swap-test}
+
+Efficient procedure to calculate the inner product. Since the circuit depth linear in the number of qubits, it can lead to an exponential speed-up (depending on how you encode the data).
+
+\begin{center}
+\begin{quantikz}
+\lstick{$\ket{0}$}      & \gate{H} & \ctrl{2} & \gate{H} & \meter{} \\
+\lstick{$\ket{\psi_1}$} & \qw      & \swap{1} & \qw      & \qw \\
+\lstick{$\ket{\psi_2}$} & \qw      & \swap{0} & \qw      & \qw \\
+\end{quantikz}
+\end{center}
+
+\[p(\text{measure }0) = \braket{\psi_1}{\psi_2}\]
+
+\only<2->{\bigskip \emph{Note}: \(\text{distance}(\psi_1, \psi_2)^2 = 2(1-\braket{\psi_1}{\psi_2}) \)}
+\end{frame}
+
+
+\begin{frame}{K-nearest neighbor classificator with swap-test}
+\begin{enumerate}
+    \item<1-> Consider some unlabelled instance \(\tilde{x}\) and some training set \((x_1, y_1); ...; (x_n, y_n)\) where \(y_i \in \{\ell_1, ..., \ell_m\}\)
+    \item<2-> Calculate the inner product between \(\tilde{x}\) and any \(x_i\) through the swap-test;
+    \item<3-> Pick the \(k\) elements whose inner product is bigger and their corresponding labels, infer \(\tilde{y}\) to be the most occurring label.
+\end{enumerate}
+\end{frame}
+
+
+\begin{frame}[fragile]{Your turn!}
+Build the swap-test circuit.
+
+Build a classificator for IRIS problem, then calculate its accuracy. \bigskip
+
+\begin{minted}{python}
+from qiskit.ml.datasets import iris
+sample_train, training_input, test_input, class_labels = 
+    iris(training_size=40, test_size=10, n=4)
+# len(training_input[key]) == 40 for key in ['A', 'B', 'C']
+# len(test_input[key]) == 10 for key in ['A', 'B', 'C']
+
+# fix qiskit.ml.datasets.iris code line 30: 
+# test_size=test_size*len(class_labels)
+\end{minted}
+\end{frame}
+
+
+\begin{frame}[fragile]{Your turn! (hint)}
+
+\begin{minted}{python}
+from heapq import nlargest
+from operator import itemgetter
+def most_common(lst): return max(set(lst), key=lst.count)
+
+def quantum_classifier(x, training_set):
+    k=3
+    similarities = []
+    for label in ['A', 'B', 'C']:
+        for item in training_set[label]:
+            the_ip = quantum_inner_product(x, item)
+            similarities.append((the_ip, label))
+    k_similarities = nlargest(k, similarities, key=itemgetter(0))
+    _, k_labels = zip(*k_similarities)
+    return most_common(k_labels)
+\end{minted}
+\end{frame}
+
+
+\begin{frame}{More on swap-test classifier}
+
+The Hadamard classifier (Schuld et al.) implements a whole classifier. 
+
+\begin{center}
+    \begin{quantikz}[]%
+    \lstick{\(\ket{a}\)}\qw%
+        & \gate{H}%
+        & \ctrl{2}%
+        & \gate{X}%
+        & \ctrl{2}%
+        & \qw%
+        & \ctrl{2}%
+        & \gate{H}%
+        & \meter{discard 1} \\%
+    \lstick{\(\ket{m}\)}\qw%
+        & \gate{H}%
+        & \qw%
+        & \qw%
+        & \ctrl{1}%
+        & \gate{X}%
+        & \ctrl{1} %
+        & \ctrl{2}%
+        & \qw\\%
+    \lstick{\(\ket{d}\)}\qw%
+        & \qw%
+        & \gate{\tilde{x}}%
+        & \qw%
+        & \gate{x_1}%
+        & \qw%
+        & \gate{x_2}%
+        & \qw%
+        & \qw\\%
+    \lstick{\(\ket{c}\)}\qw%
+        & \qw%
+        & \qw%
+        & \qw%
+        & \qw%
+        & \qw%
+        & \qw%
+        & \targ{}%
+        & \meter{}%
+\end{quantikz}
+\end{center}
+
+\[p(\text{measure }\ket{c}\;0) = \begin{cases}
+    <0.5, & d(\tilde{x}, x_1) < d(\tilde{x}, x_2) \\
+    >0.5, & d(\tilde{x}, x_1) > d(\tilde{x}, x_2)
+\end{cases} \]
+
+\end{frame}

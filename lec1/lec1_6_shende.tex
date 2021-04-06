@@ -1,0 +1,17 @@
+\begin{frame}{Arbitrary initialization}
+Encode a complex vector of \(2^n\) in a \(n\)-qubit register.
+\end{frame}
+
+\begin{frame}[fragile]{The code (7)}
+\begin{minted}{python}
+import numpy as np
+amplitudes = np.array([1+0j, 2+2j, 3+4j, 6+0.55j])
+amplitudes = amplitudes / np.linalg.norm(amplitudes)
+# np.linalg.norm(amplitudes) = 0.9999999999999999
+amplitudes = amplitudes / np.linalg.norm(amplitudes)
+# np.linalg.norm(amplitudes) = 1.0
+
+qc = QuantumCircuit(2)
+qc.initialize(amplitudes)
+\end{minted}
+\end{frame}

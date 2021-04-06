@@ -1,0 +1,44 @@
+\begin{frame}{QSVM}
+Sometimes data cannot be separated in the original feature space, but can be separated in another (higher dimensional) ones. 
+
+\only<2->{\bigskip The embedding of data into a different space is called \emph{feature maps}. Once the data is embedded, the classification can be run into the higher dimensional space (NB: the only operation we care for is the inner product).}
+
+\only<3->{\bigskip Each embedding of data into a quantum circuit act as a feature map, then the inner product is performed by the swap-test.}
+
+\only<4->{\bigskip \emph{Difference with the previous classifier}: no performance improvement, potential accuracy improvement (depending on the efficacy of the feature map)}
+
+\only<5->{\bigskip The procedure make sense only for feature map that cannot be simulated efficiently on classical hardware.}
+\end{frame}
+
+
+\begin{frame}[fragile]{Your turn!}
+Try the QSVM. Check some feature map available on Qiskit documentation (find the meaning of \code{repetition} and \code{entanglement} parameters). Create a new feature map extending class \code{qiskit.aqua.components.feature\_maps.FeatureMap} (four qubit, one \code{RX} gate per each qubit - and feature of IRIS). \bigskip
+
+\begin{minted}{python}
+from qiskit.circuit.library import ZZFeatureMap
+feature_map = ZZFeatureMap(feature_dimension=4, reps=1, entanglement='linear')
+backend = Aer.get_backend('statevector_simulator')
+quantum_instance = QuantumInstance(backend, shots=1))
+qsvm = QSVM(feature_map, training_input, test_input)
+result = qsvm.run(quantum_instance)
+print(f'Testing success ratio: {result["testing_accuracy"]}')
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Parametrized circuits}
+Circuit depending on some parameters.\bigskip
+
+\begin{minted}{python}
+theta = Parameter('theta')
+qc = QuantumCircuit(1)
+qc.rx(theta, 0)
+
+# bind paramenters explicitly
+qc2 = qc.bind_parameters({theta: 0.123})
+qc2.draw()
+
+# bind parameters when executing
+execute(qc, backend=..., parameter_binds=[
+    {theta: theta_val} for theta_val in [0.1, 0.2, 0.3])
+\end{minted}
+\end{frame}
