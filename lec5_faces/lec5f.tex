@@ -1,0 +1,35 @@
+\section{Lecture 5:\\ Variational circuits}
+\SectionPage{}
+
+\input{lec5_ml/lec5_3_variational_classifier}
+
+\section{Lecture 5:\\ Facial Expression Recognition}
+\SectionPage{}
+
+\begin{frame}{The problem}
+Facial Expression Recognition (FER) is an extremely relevant task associated with human-computer interaction, with applications in predictive environments, content analysis, support for healthcare, and many more. 
+
+\bigskip FER is a classification problem, in which each picture representing a face have to be associated with its expression.
+
+\bigskip It is possible to solve FER with supervised learning approaches starting from a dataset for labelled pictures.
+\end{frame}
+
+
+
+\begin{frame}{The problem (2)}
+FER is solved using a quantum circuit that encodes:
+\begin{itemize}
+    \item a subset of the dataset;
+    \item the unlabelled test instance
+\end{itemize} 
+into quantum states.
+
+\bigskip Then, infer the test label as the one of the closest item in terms of Euclidian distance.
+\end{frame}
+
+
+\input{lec5_faces/lec5f_1_dataset}
+\input{lec5_faces/lec5f_2_aam}
+\input{lec5_faces/lec5f_3_graphs}
+\input{lec5_faces/lec5f_4_classifier}
+\input{lec5_faces/lec5f_5_test}

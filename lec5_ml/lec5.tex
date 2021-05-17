@@ -1,0 +1,30 @@
+%\input{lec4_grover/lec4_1_exercise_correction}
+
+\section{Lecture 4:\\ Applications to\\ Machine Learning}
+\SectionPage{}
+
+\begin{frame}{Aspects of QC that can improve ML}
+
+Several algorithms for quantum computers have been proposed which improve the performance of machine learning software. Here we consider some \emph{classification} problem. We assume that \(N\) is the size of the training set and \(M\) the number of features per sample. \bigskip
+
+Samples $x \in \mathbb{R}^n$ are encoded through a piece of circuit called \emph{feature map} $U(x)$.
+
+\end{frame}
+
+
+\begin{frame}{Some approaches}
+\begin{center}
+\begin{tabular}{c c}
+    Algorithm & Improvement \\ \midrule
+    SWAP-test & Distance procedure from \(O(M)\) to \(O(\log(M))\)  \\[1em]
+    QSVM & The quantum circuit act ``like" a kernel function  \\[1em]
+    QNN & Sometimes lead to faster training  \\[1em]
+\end{tabular}
+\end{center}
+\end{frame}
+
+%\input{lec5_ml/lec5_1_swap_test_based}
+
+%\input{lec5_ml/lec5_2_qsvm}
+
+\input{lec5_ml/lec5_3_variational_classifier}

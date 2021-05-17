@@ -1,0 +1,53 @@
+\begin{frame}[fragile]{Your turn!}
+\begin{minted}{python}
+def quantum_distance(G_0, G_1, G_test, tol=0.00001):
+    # ...
+    return difference, label
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Test the correctness}
+\begin{minted}{python}
+def test_accuracy_of_classification(states):
+    correct, wrong = 0, 0
+    for i, first_data in enumerate(states):
+        for j, second_data in enumerate(states):
+            for k, third_data in enumerate(states):
+                dc, cl = classical_distance(first_data,
+                    second_data, third_data)
+                dq, ql = quantum_distance(first_data,
+                    second_data, third_data, tol=0.015)
+                if cl == ql:
+                    correct += 1
+                    print(".", end="")
+                else:
+                    wrong += 1
+                    print("X", end="")
+    return (correct, wrong)
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Test the correctness}
+\begin{minted}{python}
+# create some quantum states
+zero  = np.array([1, 0])
+one   = np.array([0, 1])
+plus  = (1/np.sqrt(2)) * np.array([1, 1])
+minus = (1/np.sqrt(2)) * np.array([1, -1])
+ipos  = (1/np.sqrt(2)) * np.array([1, complex(0,1)])
+ineg  = (1/np.sqrt(2)) * np.array([1, complex(0,-1)])
+
+# run the test
+states = [zero, one, plus, minus, ipos, ineg]
+correct, wrong = test_accuracy_of_classification(states)
+
+# print results
+print(f"\nClassified {correct} correctly and {wrong} wrongly")
+\end{minted}
+\end{frame}
+
+\begin{frame}{Your turn!}
+Download the starter code. The file \code{dataset.json} contains 26 elements, representing the path of an image, a path of its file containing the landmark points and its label. 
+
+\bigskip Estimate the accuracy of both classical and quantum classifier. 
+\end{frame}

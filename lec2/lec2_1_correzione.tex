@@ -1,0 +1,100 @@
+% ============================================
+
+\begin{frame}[fragile]{Exercise checking (1)}
+
+\begin{itemize} 
+\item Check your Qiskit installation
+\end{itemize}
+
+\begin{minted}{python}
+import qiskit
+qiskit.__qiskit_version__
+\end{minted}
+
+\bigskip No errors must appear (except the one regarding \code{matplotlib}, depending on the console you're using). 
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}[fragile]{Exercise checking (2)}
+
+\begin{itemize} 
+\item Define the circuits implementing the Bell states, simulate and execute them with any backend seen so far (including real machines)
+\end{itemize}
+
+\begin{minted}{python}
+qc = QuantumCircuit(2, 2)
+qc.h(0)
+qc.cx(0, 1)
+
+statevector_sim = Aer.get_backend('statevector_simulator')
+statevector_result = execute(qc, backend=statevector_sim, shots=1)
+    .result().get_statevector()
+
+unitary_sim = Aer.get_backend('unitary_simulator')
+unitary_result = execute(qc, backend=unitary_sim, shots=1)
+    .result().get_unitary()
+\end{minted}
+
+\end{frame}
+
+
+\begin{frame}[fragile]{Exercise checking (2)}
+
+\begin{itemize} 
+\item Define the circuits implementing the Bell states, simulate and execute them with any backend seen so far (including real machines)
+\end{itemize}
+
+\begin{minted}{python}
+qc.measure([0, 1], [0, 1])
+qasm_sim = Aer.get_backend('qasm_simulator')
+qasm_result = execute(qc, backend=qasm_simulator, shots=1000)
+    .result().get_statevector()
+
+IBMQ.load_account()
+santiago = IBMQ.get_provider().get_backend('ibmq_santiago')
+counts = execute(qc, backend=santiago, shots=1000).result().get_counts()
+\end{minted}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}[fragile]{Exercise checking (3)}
+
+\begin{itemize} 
+\item How does the circuit size for arbitrary initialization grow when the number of qubit increases?
+\end{itemize}
+
+\begin{minted}{python}
+from qiskit import * 
+from qiskit.quantum_info.states.random import random_statevector
+
+qubits = [1, 2, 3, 4, 5, 6, 7, 8]
+sizes = []
+
+for qubit in qubits:
+	qc = QuantumCircuit(qubit)
+	statevector = random_statevector(2**qubit)
+	qc.initialize(statevector.data)
+	qc2 = transpile(qc, basis_gates=['u3','cx'])
+	sizes.append(qc2.size())
+	
+# sizes = [1, 6, 19, 48, 109, 234, 487, 996]
+\end{minted}
+
+\end{frame}
+
+
+% ============================================
+
+\begin{frame}[fragile]{Exercise checking (4)}
+
+\begin{itemize} 
+\item Try Deutsch-Jozsa
+\end{itemize}
+
+\bigskip See \url{qiskit.org/textbook/ch-algorithms/deutsch-jozsa.html}.
+
+\end{frame}

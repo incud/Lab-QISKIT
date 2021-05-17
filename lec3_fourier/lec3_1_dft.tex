@@ -1,0 +1,167 @@
+
+\begin{frame}{DFT}
+\onslide<1->{
+\[
+    \mqty[x_0 \\ x_1 \\ \vdots \\ x_{N-1}] 
+    \xrightarrow{\text{DFT}}
+    \mqty[y_0 \\ y_1 \\ \vdots \\ y_{N-1}] 
+    \qquad 
+    y_k = \frac{1}{\sqrt{N}} \sum_{j=0}^{N-1} x_j \; \exp(\frac{2\pi i}{N} \cdot j \cdot k)
+\]}
+\onslide<2->{
+\[
+    \mqty[y_0 \\ y_1 \\ \vdots \\ y_{N-1}] 
+    \xrightarrow{\text{DFT}^{-1}}
+    \mqty[x_0 \\ x_1 \\ \vdots \\ x_{N-1}] 
+    \qquad 
+    x_j = \frac{1}{\sqrt{N}} \sum_{k=0}^{N-1} y_k \; \exp(-\frac{2\pi i}{N} \cdot j \cdot k)
+\]}
+\end{frame}
+
+% ===========================================
+
+\begin{frame}{DFT}
+
+\[
+    \mqty[x_0 \\ x_1 \\ \vdots \\ x_{N-1}] 
+    \xrightarrow{\text{DFT}}
+    \mqty[y_0 \\ y_1 \\ \vdots \\ y_{N-1}] 
+    \qquad 
+    y_k = \frac{1}{\sqrt{N}} \sum_{j=0}^{N-1} x_j \; \alert{\omega}^{j \cdot k}
+\]
+\[
+    \mqty[y_0 \\ y_1 \\ \vdots \\ y_{N-1}] 
+    \xrightarrow{\text{DFT}^{-1}}
+    \mqty[x_0 \\ x_1 \\ \vdots \\ x_{N-1}] 
+    \qquad 
+    x_j = \frac{1}{\sqrt{N}} \sum_{k=0}^{N-1} y_k \; \alert{\omega}^{-j \cdot k}
+\]
+
+\bigskip
+\[ \alert{\omega} = \text{nth root of unity} \qquad \omega^{N+i}=\omega^i \]
+\end{frame}
+
+% ===========================================
+
+\begin{frame}{DFT example}
+Calculate \( \mqty[y_0 \\ y_1] = \mathrm{DFT}\left(\mqty[x_0 \\ x_1]\right) \) where \( \mqty[x_0 \\ x_1] = \mqty[1 \\ 2] \).
+
+\alert{\medskip Note: \(\omega^0 = 1\), \(\omega^1 = -1\)}. 
+
+\onslide<2->{
+\begin{align*}
+    y_0
+    & = \frac{1}{\sqrt{2}}\left(
+        x_0 \, \omega^{0 \cdot 0}
+        + x_1 \, \omega^{0 \cdot 1}
+    \right)
+    & & = \frac{1}{\sqrt{2}}\left(
+        1 \cdot 1
+        + 2 \cdot 1
+    \right)
+    & & = \frac{1}{\sqrt{2}} (3) \\
+    y_1
+    & = \frac{1}{\sqrt{2}}\left(
+        x_0 \, \omega^{1 \cdot 0}
+        + x_1 \, \omega^{1 \cdot 1}
+    \right) 
+    & & = \frac{1}{\sqrt{2}}\left(
+        1 \cdot 1
+        + 2 \cdot (-1)
+    \right)
+    & & = \frac{1}{\sqrt{2}} (-1) \\
+\end{align*}}
+\end{frame}
+
+% ===========================================
+
+\begin{frame}{\(\text{DFT}^{-1}\) example}
+Calculate \(\mqty[x_0 \\ x_1] = \mathrm{DFT}^{-1}\left(\mqty[y_0 \\ y_1]\right)\).
+
+\alert{\medskip Note: \(\omega^0 = 1\), \(\omega^1 = -1\)}. 
+
+\onslide<2->{
+\begin{align*}
+    x_0
+    & = \frac{1}{\sqrt{2}}\left(
+        y_0 \, \omega^{-0 \cdot 0}
+        + y_1 \, \omega^{-0 \cdot 1}
+    \right)
+    & & = \frac{1}{\sqrt{2}}\left(
+        \frac{3}{\sqrt{2}}
+        + \frac{-1}{\sqrt{2}}
+    \right)
+    & & = 1 \\
+    x_1 
+    & = \frac{1}{\sqrt{2}}\left(
+        y_0 \, \omega^{-1 \cdot 0}
+        + y_1 \, \omega^{-1 \cdot 1}
+    \right)
+    & & = \frac{1}{\sqrt{2}}\left(
+        \frac{3}{\sqrt{2}}
+        - \frac{-1}{\sqrt{2}}
+    \right)
+    & & = 2 \\
+\end{align*}}
+\end{frame}
+
+% ===========================================
+
+\begin{frame}[fragile]{DFT Matrix}
+\[ \mathrm{DFT}\left(\mqty[x_0 \\ x_1]\right) 
+= \underbrace{\frac{1}{\sqrt{2}}
+\mqty[\omega^0 & \omega^0 \\ \omega^0 & \omega^1]}_{\text{DTF matrix}}
+\mqty[x_0 \\ x_1] 
+\]
+
+DTF is \(N\times N\) matrix multiplication. \bigskip
+
+\begin{minted}{python}
+from scipy.linalg import dft
+import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+
+dft(2)
+# array([[ 1.+0.j,  1.+0.j],
+#        [ 1.+0.j, -1.-0.j]])
+\end{minted}
+\end{frame}
+
+% ===========================================
+
+\begin{frame}{Note on \code{dft} method}
+\begin{itemize}
+    \item<1-> Use scipy's \code{dft} to check the math, but \alert{check its specification}
+    \item<2-> you need to add \(1/\sqrt{N}\) factor
+    \item<3-> primitive n-th root is \(\omega=\exp(\alert{-}\frac{2\pi}{N})\)
+    \begin{itemize}
+        \item<4-> such matrix is the complex conjugate of QFT's matrix
+        \item<5-> both are correct results
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+% ===========================================
+
+\begin{frame}[fragile]{Note on \code{dft} method}
+\begin{itemize}
+    \item Use scipy's \code{dft} to check the math, but \alert{check its specification}
+    \item you need to add \(1/\sqrt{N}\) factor
+    \item primitive n-th root is \(\omega=\exp(\alert{-}\frac{2\pi}{N})\)
+    \begin{itemize}
+        \item such matrix is the complex conjugate of QFT's matrix
+        \item both are correct results
+    \end{itemize}
+\end{itemize}
+
+\bigskip
+\begin{minted}{python}
+import numpy as np
+dft_matrix = (1/np.sqrt(N)) * dft(N).conj()
+
+# array([[ 0.5+0.j ,  0.5+0.j ,  0.5+0.j ,  0.5+0.j ],
+#        [ 0.5+0.j ,  0. +0.5j, -0.5+0.j , -0. -0.5j],
+#        [ 0.5+0.j , -0.5+0.j ,  0.5-0.j , -0.5+0.j ],
+#        [ 0.5+0.j , -0. -0.5j, -0.5+0.j ,  0. +0.5j]])
+\end{minted}
+\end{frame}

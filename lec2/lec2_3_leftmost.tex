@@ -1,0 +1,49 @@
+\begin{frame}{A note on Qiskit: which qubit is leftmost?}
+
+\begin{center}
+\begin{quantikz}[]
+\lstick{\(\ket{\psi}\)}\qw
+    & \gate[wires=3]{teleport}
+    & \qw\rstick{\(\ket{b_1}\)} \\
+\lstick{\(\ket{0}\)}\qw
+    & \qw
+    & \qw\rstick{\(\ket{b_2}\)} \\
+\lstick{\(\ket{0}\)}\qw
+    & \qw
+    & \qw\rstick{\(\ket{\psi}\)}
+\end{quantikz}
+\end{center}
+
+\bigskip At the beginning of the circuit the state is \( \ket{0} \otimes \ket{0} \otimes \ket{\psi} \)
+
+\bigskip At the end of the circuit the state is \( \ket{\psi} \otimes \ket{b_2} \otimes \ket{b_1} \)
+
+\end{frame}
+
+% =====================================================
+
+\begin{frame}[fragile]{The code (1)}
+
+\begin{minted}[fontsize=\footnotesize]{python}
+from qiskit.quantum_info.states.random import random_statevector
+from qiskit import * \ import numpy as np
+
+psi = random_statevector(2).data  
+# array([0.75160912+0.04778984j, 0.49917654-0.42851213j])
+qc = QuantumCircuit(3, 3)
+qc.initialize(psi, 0)
+sv_sim = Aer.get_backend('statevector_simulator')
+statevector = execute(qc, sv_sim).result().get_statevector()
+# array([0.75160912+0.04778984j, 0.49917654-0.42851213j,
+#        0.        +0.j        , 0.        +0.j        ,
+#        0.        +0.j        , 0.        +0.j        ,
+#        0.        +0.j        , 0.        +0.j        ])
+ket_zero = np.array([1, 0])
+np.kron(np.kron(ket_zero, ket_zero), psi)
+# array([0.75160912+0.04778984j, 0.49917654-0.42851213j,
+#        0.        +0.j        , 0.        +0.j        ,
+#        0.        +0.j        , 0.        +0.j        ,
+#        0.        +0.j        , 0.        +0.j        ])
+\end{minted}
+
+\end{frame}

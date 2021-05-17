@@ -1,0 +1,112 @@
+\begin{frame}{Classical classifier}
+
+The classifier receives in input the vector $x_\text{test}$ and two vectors $x_0, x_1$ which are one representative of the happy and sad faces.
+
+\bigskip The Euclidian distances $\mathrm{distance}(x_\text{test}, x_0)$ and $\mathrm{distance}(x_\text{test}, x_1)$ are calculated. The test instance is classifies as the closest representative, whose distance is lower. 
+
+\end{frame}
+
+\begin{frame}[fragile]{The code}
+
+\begin{minted}{python}
+def classical_distance(G_0, G_1, G_test, tol=0.00001):
+    
+    # distance between the test instance and the happy instance
+    distance_0 = np.linalg.norm(G_0 - G_test)
+    # distance between the test instance and the sad instance
+    distance_1 = np.linalg.norm(G_1 - G_test)
+    # the difference is = 0 if the distance is equal, > 0 if sad is closest, < 0 if happy is closest
+    difference = distance_0 - distance_1
+    # remove some numerical error that can classify numbers like +-0.00001 as Y1 or Y0 instead of EQUALS
+    the_difference = 0 if np.abs(difference) <= tol else difference
+    
+    # sign(difference) = 0 -> EQUAL; sign(difference) = 1 -> Y1; sign(difference) = -1 -> Y0
+    label = int(np.sign(the_difference))
+    return difference, ["EQUAL", "Y1", "Y0"][label]
+\end{minted}
+\end{frame}
+
+
+
+\begin{frame}{Quantum classifier}
+    \begin{center}
+        \scalebox{0.8}{\input{lec5_faces/classifier}}
+    \end{center}
+\end{frame}
+
+\begin{frame}{Quantum classifier}
+The circuit evolves as it follows:
+\only<1>{\begin{itemize}
+\item the circuit starts in state:
+$$|0\rangle_a |0\rangle_i |0\rangle_d |0\rangle_c;$$
+\item after the first two Hadamard gates the state is:
+$$\frac{1}{2} (|0\rangle+|1\rangle)_a (|0\rangle+|1\rangle)_i |0\rangle_d |0\rangle_c;$$
+\end{itemize}
+}%
+%
+\only<2>{\begin{itemize}
+\item after the controlled initialization of the test instance the state is: 
+$$\frac{1}{2} |0\rangle_a (|0\rangle+|1\rangle)_i |0\rangle_d |0\rangle_c
++ \frac{1}{2} |1\rangle_a (|0\rangle+|1\rangle)_i |G_\text{test}\rangle_d |0\rangle_c;$$
+\item after the X operation on the ancilla qubit the state is:
+$$\frac{1}{2} |0\rangle_a (|0\rangle+|1\rangle)_i |G_\text{test}\rangle_d |0\rangle_c
++ \frac{1}{2} |1\rangle_a (|0\rangle+|1\rangle)_i |0\rangle_d |0\rangle_c;$$
+\end{itemize}
+}%
+%
+\only<3>{\begin{itemize}
+\item after the double-controlled initialization of the first representative the state is:
+$$\frac{1}{2} |0\rangle_a (|0\rangle+|1\rangle)_i |G_\text{test}\rangle_d |0\rangle_c
++ \frac{1}{2} |1\rangle_a |0\rangle_i |0\rangle_d |0\rangle_c
++ \frac{1}{2} |1\rangle_a |1\rangle_i |G_0\rangle_d |0\rangle_c;$$
+\item after the X operation on the index register the state is:
+$$\frac{1}{2} |0\rangle_a (|0\rangle+|1\rangle)_i |G_\text{test}\rangle_d |0\rangle_c
++ \frac{1}{2} |1\rangle_a |0\rangle_i |G_0\rangle_d |0\rangle_c
++ \frac{1}{2} |1\rangle_a |1\rangle_i |0\rangle_d |0\rangle_c;$$
+\item after the double-controlled initialization of the second representative the state is:
+$$\frac{1}{2} |0\rangle_a (|0\rangle+|1\rangle)_i |G_\text{test}\rangle_d |0\rangle_c
++ \frac{1}{2} |1\rangle_a |0\rangle_i |G_0\rangle_d |0\rangle_c
++ \frac{1}{2} |1\rangle_a |1\rangle_i |G_1\rangle_d |0\rangle_c;$$
+\end{itemize}
+}%
+%
+\only<4>{\begin{itemize}
+\item after the CNOT gate binding the index register with the class register, the state is:
+{\footnotesize $$\frac{1}{2} |0\rangle_a |0\rangle_i |G_\text{test}\rangle_d |0\rangle_c
++ \frac{1}{2} |0\rangle_a |1\rangle_i |G_\text{test}\rangle_d |1\rangle_c
++ \frac{1}{2} |1\rangle_a |0\rangle_i |G_0\rangle_d |0\rangle_c
++ \frac{1}{2} |1\rangle_a |1\rangle_i |G_1\rangle_d |1\rangle_c;$$}%
+
+for the sake of visualization, we set $|0\rangle_c$ as $|y_0\rangle_c$ and $|1\rangle_c$ as $|y_1\rangle_c$ to remind us that such register contains the two labels:
+{\footnotesize $$\frac{1}{2} |0\rangle_a |0\rangle_i |G_\text{test}\rangle_d |y_0\rangle_c
++ \frac{1}{2} |0\rangle_a |1\rangle_i |G_\text{test}\rangle_d |y_1\rangle_c
++ \frac{1}{2} |1\rangle_a |0\rangle_i |G_0\rangle_d |y_0\rangle_c
++ \frac{1}{2} |1\rangle_a |1\rangle_i |G_1\rangle_d |y_1\rangle_c;$$}
+which is re-arranged into the following equation:
+$$ \frac{1}{2} \sum_{k \in \{0, 1\}} \Big( |0\rangle_a |G_\text{test}\rangle_d + |1\rangle_a |G_k\rangle_d  \Big) |k\rangle_i |y_k\rangle_c;$$
+\end{itemize}
+}%
+%
+\only<5>{\begin{itemize}
+\item after the final Hadamard gate the state is: $$\frac{1}{2\sqrt{2}} \sum_{k \in \{0, 1\}} \Big( |0\rangle_a (|G_\text{test}\rangle + |G_k\rangle)_d + |1\rangle_a (|G_\text{test}\rangle - |G_k\rangle)_d \Big) |k\rangle_i |y_k\rangle_c.$$
+\end{itemize}}
+\end{frame}
+
+\begin{frame}{Measurement interpretation}
+
+By estimating the probability of reading class $y_0=0$ or $y_1=1$ we can estimate the distance between $G_\text{test}, G_0$ with respect to the distance between $G_\text{test}, G_1$. So, 
+
+$$y_\text{test} = \begin{cases}
+    y_0,           & > .5 \\
+    y_1,           & < .5 \\
+    \text{equals}, & = .5
+\end{cases}$$
+
+To mitigate the errors due to the probabilistic nature of the computation, we can introduce a small tollerance $\epsilon$ around the boundary between the two labels:
+
+$$y_\text{test} = \begin{cases}
+    y_0, & > .5+\epsilon \\
+    y_1, & < .5-\epsilon \\
+    \text{equals}, & \text{otherwise}
+\end{cases}$$
+\end{frame}

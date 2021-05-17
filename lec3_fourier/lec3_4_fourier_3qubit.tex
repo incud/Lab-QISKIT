@@ -1,0 +1,107 @@
+\begin{frame}{Product form of QFT}
+Set \(N=2^n, n=3\) and \(\ket{j}\) element of the computational basis.
+\[ \mathrm{QFT}: \ket{j} \to \frac{1}{\sqrt{2^3}} \sum_{j=0}^{2^3-1} \omega^{jk} \ket{k} \]
+
+Write \(\ket{j}\) in its binary form \(\ket{j_1 j_2 j_3}\). The above formula is equivalent to
+\begin{align*}
+    \mathrm{QFT}: \ket{j_1 j_2 j_3} \to 
+    \frac{1}{\sqrt{2^3}} &
+    (\ket{0} + e^{2\pi i 0.j_3} \ket{1}) \, \otimes \\
+    & (\ket{0} + e^{2\pi i 0.j_2j_3} \ket{1}) \, \otimes \\
+    & (\ket{0} + e^{2\pi i 0.j_1j_2j_3} \ket{1})
+\end{align*}
+(See Nielsen\&Chuang p.218)
+\end{frame}
+
+\begin{frame}{\(CR_k\) gate}
+\[ CR_k = \mqty[
+    1 & 0 & 0 & 0 \\ 
+    0 & 1 & 0 & 0 \\ 
+    0 & 0 & 1 & 0 \\ 
+    0 & 0 & 0 & e^{2\pi i/2^k}] 
+\]
+\[ CP(\theta) = \mqty[
+    1 & 0 & 0 & 0 \\ 
+    0 & 1 & 0 & 0 \\ 
+    0 & 0 & 1 & 0 \\ 
+    0 & 0 & 0 & e^{i \theta}] 
+\]
+
+\[ CR_k = CP(2 \pi/2^k) \]
+\end{frame}
+
+\begin{frame}{QFT 3-qubit}
+\begin{center}
+\begin{quantikz}[]
+    \lstick{\(\ket{j_0}\)}\qw & \qw      & \ctrl{2}   & \qw        
+                              & \qw      & \ctrl{1}   & \gate{H}   
+                              & \swap{2} & \qw \\
+    \lstick{\(\ket{j_1}\)}\qw & \qw      & \qw        & \ctrl{1}        
+                              & \gate{H} & \gate{R_2} & \qw 
+                              & \swap{1} & \qw \\
+    \lstick{\(\ket{j_2}\)}\qw & \gate{H} & \gate{R_3} & \gate{R_2}  
+                              & \qw      & \qw        & \qw
+                              & \targX{} & \qw \\
+\end{quantikz}
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]{QFT 3-qubit (1)}
+\begin{minted}{python}
+import numpy as np
+from math import pi
+from scipy.linalg import dft
+from qiskit import * 
+from qiskit.circuit.library import QFT
+
+N, n = 8, 3
+x = np.array([1, 2, 3, 4, 5, 6, 7, 8])
+while np.linalg.norm(x) != 1: x = x / np.linalg.norm(x)
+
+# classical procedure
+y_dft = (1/np.sqrt(N)) * dft(N).conj().dot(x)
+\end{minted}
+\end{frame}
+
+
+\begin{frame}[fragile]{QFT 3-qubit (2)}
+\begin{minted}{python}
+def qft_rotations(circuit, n):
+    if n == 0: return circuit
+    n -= 1
+    circuit.h(n)
+    for qubit in range(n):
+        circuit.cp(pi/2**(n-qubit), qubit, n)
+    qft_rotations(circuit, n)
+    
+def swap_registers(circuit, n):
+    for qubit in range(n//2):
+        circuit.swap(qubit, n-qubit-1)
+    return circuit
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{QFT 3-qubit (3)}
+\begin{minted}{python}
+the_qc = QuantumCircuit(n)
+the_qc.initialize(x, range(0, n))
+qft_rotations(the_qc, n)
+swap_registers(the_qc, n)
+sv_sim = Aer.get_backend('statevector_simulator')
+y_qft = execute(the_qc, sv_sim).result().get_statevector()
+\end{minted}
+
+\smallskip Check the math:
+\begin{minted}{python}
+np.allclose(y_dft, y_qft)
+\end{minted}
+
+\smallskip Equivalent to Qiskit function:
+\begin{minted}{python}
+the_qc = QuantumCircuit(n)
+the_qc.initialize(x, range(0, n))
+the_qc.append(QFT(n), range(0, n))
+y_qft_qiskit = execute(the_qc, sv_sim).result().get_statevector()
+np.allclose(y_qft, y_qft_qiskit) # True
+\end{minted}
+\end{frame}

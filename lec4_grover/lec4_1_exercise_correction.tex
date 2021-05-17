@@ -1,0 +1,51 @@
+\begin{frame}[fragile]{Exercise: Quantum Adder}
+\begin{minted}{python}
+import numpy as np
+from qiskit import *
+from qiskit.circuit.library import QFT
+
+np.set_printoptions(precision=4, suppress=True)
+
+def decode_amplitudes(n, the_sv, prefix=''):
+  for index, value in enumerate(the_sv):
+    if np.abs(value) > 0.1:
+      amplitude_name = format(index, "#0" + str(2 + 2 * n) + "b")
+      print(f'{amplitude_name} has value {value:.3f}')
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Exercise: Quantum Adder}
+\begin{minted}{python}
+n = 2
+qa = QuantumRegister(n, "a")
+qb = QuantumRegister(n, "b")
+cr = ClassicalRegister(n, "cr")
+qc = QuantumCircuit(qa, qb, cr)
+sv_sim = Aer.get_backend('statevector_simulator')
+
+# encode states
+qc.x(qa[0])
+qc.x(qa[1])
+qc.x(qb[0])
+qc.x(qb[1])
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Exercise: Quantum Adder}
+\begin{minted}{python}
+# qft
+qc.append(QFT(n), qa[:])
+
+# adder
+qc.cp(np.pi,   qb[0], qa[1])
+qc.cp(np.pi/2, qb[0], qa[0])
+qc.cp(np.pi,   qb[1], qa[0])
+
+# iqft
+qc.append(QFT(n, inverse=True), qa[:])
+
+# print
+sv = execute(qc, sv_sim).result().get_statevector()
+decode_amplitudes(n, sv, prefix="after  IQFT:")
+\end{minted}
+\end{frame}

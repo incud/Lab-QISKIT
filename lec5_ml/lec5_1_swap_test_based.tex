@@ -10,9 +10,64 @@ Efficient procedure to calculate the inner product. Since the circuit depth line
 \end{quantikz}
 \end{center}
 
-\[p(\text{measure }0) = \braket{\psi_1}{\psi_2}\]
+\[p(\text{measure }0) = \frac{1}{2} + \frac{1}{2}|\braket{\psi_1}{\psi_2}|^2\]
 
 \only<2->{\bigskip \emph{Note}: \(\text{distance}(\psi_1, \psi_2)^2 = 2(1-\braket{\psi_1}{\psi_2}) \)}
+\end{frame}
+
+\begin{frame}{Swap-test math}
+\begin{align*}
+    & \ket{0}\ket{\psi_1}\ket{\psi_2} \\
+    \to^{(1)}\quad
+    & \frac{1}{\sqrt{2}}(\ket{0}+\ket{1})\ket{\psi_1}\ket{\psi_2} \\
+    \to^{(2)}\quad & \frac{1}{\sqrt{2}}(\ket{0}\ket{\psi_1}\ket{\psi_2} + \ket{1}\ket{\psi_2}\ket{\psi_1}) \\
+    \to^{(3)}\quad & \frac{1}{2}(\ket{0}\ket{\psi_1}\ket{\psi_2} + \ket{1}\ket{\psi_1}\ket{\psi_2} + \ket{0}\ket{\psi_2}\ket{\psi_1} - \ket{1}\ket{\psi_2}\ket{\psi_1}) \\
+    = \quad & \frac{1}{2}
+\ket{0}(\ket{\psi_1}\ket{\psi_2} + \ket{\psi_2}\ket{\psi_1}) + \frac{1}{2} \ket{1}(\ket{\psi_1}\ket{\psi_2} - \ket{\psi_2}\ket{\psi_1}) 
+\end{align*}
+\[ p(\text{measure zero}) = \frac{1}{2}(\ket{\psi_1}\ket{\psi_2} + \ket{\psi_2}\ket{\psi_1})^\dagger \frac{1}{2}(\ket{\psi_1}\ket{\psi_2} + \ket{\psi_2}\ket{\psi_1})\]
+\end{frame}
+
+\begin{frame}{C-SWAP with multiple qubits per state}
+\begin{center}
+    \begin{quantikz}
+\lstick{$\ket{0}$}      & \gate{H} & \ctrl{2} & \ctrl{3} & \gate{H} & \meter{} \\
+\lstick{$\ket{\psi}_0$} & \qw      & \swap{2} & \qw      & \qw      & \qw \\
+\lstick{$\ket{\psi}_1$} & \qw      & \qw      & \swap{2} & \qw      & \qw \\
+\lstick{$\ket{\phi}_0$} & \qw      & \swap{0} & \qw      & \qw      & \qw \\
+\lstick{$\ket{\phi}_1$} & \qw      & \qw      & \swap{0} & \qw      & \qw \\
+\end{quantikz}
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]{SWAP-test on qiskit}
+\begin{minted}{python}
+n = 1 # qubit per register
+psi = np.array([0, 1])
+phi = np.array([1, 0])
+
+qra, qr1, qr2 = QuantumRegister(1), QuantumRegister(n), QuantumRegister(n)
+cr = ClassicalRegister(1)
+qc = QuantumCircuit(qa, qr1, qr2, cr)
+qc.h(qa[0])
+qc.initialize(psi, qr1[:])
+qc.initialize(phi, qr2[:])
+for i in range(n):
+    qc.cswap(qra[0], qr1[i], qr2[i])
+qc.h(qra[0])
+qc.measure(qra[0], cr[0])
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{SWAP-test on qiskit}
+\begin{minted}{python}
+qasm_sim = Aer.get_backend('qasm_simulator')
+SHOTS = 1000
+count = execute(qc, qasm_sim, shots=SHOTS).result.get_count()
+p0 = count.get('0', 0)/SHOTS
+p1 = count.get('1', 0)/SHOTS
+inner_prod = sqrt(2*max(p0 - 0.5, 0))
+\end{minted}
 \end{frame}
 
 
@@ -113,5 +168,22 @@ The Hadamard classifier (Schuld et al.) implements a whole classifier.
     <0.5, & d(\tilde{x}, x_1) < d(\tilde{x}, x_2) \\
     >0.5, & d(\tilde{x}, x_1) > d(\tilde{x}, x_2)
 \end{cases} \]
+
+\end{frame}
+
+\begin{frame}[fragile]{Controlled-initialize}
+\begin{minted}{python}
+init_data = QuantumCircuit(n)
+init_data.initialize(psi, range(n))
+init_data_wo_reset = init_data.gates_to_uncompute().inverse()
+control_init_data = init_data.control(1)
+
+qc = ...
+qc.append(control_init_data, ...)
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Your turn!}
+Build the Hadamard classifier circuit. Use it to solve the IRIS problem. \bigskip
 
 \end{frame}

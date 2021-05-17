@@ -1,0 +1,30 @@
+\begin{frame}{QFT 1-qubit}
+\[ \mathrm{QFT}_{N=2} = \frac{1}{\sqrt{2}} \mqty[\omega^0 & \omega^0 \\ \omega^0 & \omega^1] = \frac{1}{\sqrt{2}} \mqty[1 & 1 \\ 1 & -1] = H \]
+\end{frame}
+
+% ===================================
+
+\begin{frame}[fragile]{QFT 1-qubit}
+Normalize your vector:
+\begin{minted}{python}
+x = np.array([1, 2])
+while np.linalg.norm(x) != 1: 
+    x = x / np.linalg.norm(x) # array([0.4472, 0.8944])
+\end{minted}
+
+Initialize the vector, apply H and get the quantum state:
+\begin{minted}{python}
+qc = QuantumCircuit(1)
+qc.initialize(x, [0])
+qc.h(0)
+sv_sim = Aer.get_backend('statevector_simulator')
+y_qft = execute(qc, sv_sim).result().get_statevector()
+# array([ 0.9487-0.j, -0.3162+0.j])
+\end{minted}
+
+Check the math:
+\begin{minted}{python}
+y_dft = (1/np.sqrt(2)) * dft(2).conj().dot(x)
+np.allclose(y_dft, y_qft) # True
+\end{minted}
+\end{frame}

@@ -1,0 +1,59 @@
+\begin{frame}{Exercise: Quantum Adder}
+QFT is used to perform arithmetical operations.
+
+\bigskip \alert{Exercise}: find the circuit calculating \(\ket{a}\ket{b} \to \ket{a+b}\ket{b}\). 
+
+\bigskip \alert{Reference}: Quantum Adder of Classical Numbers, Cherkas and Chivilikhin (2017)
+
+\url{iopscience.iop.org/article/10.1088/1742-6596/735/1/012083/pdf}
+\end{frame}
+
+% =====================================
+
+\begin{frame}{Exercise: Quantum Adder}
+\alert{Exercise}: find the circuit calculating \(\ket{a}\ket{b} \to \ket{a+b}\ket{b}\). 
+
+\begin{center}
+\begin{quantikz}
+    \lstick{\(\ket{a}_0\)} \qw & \gate[wires=2]{QFT} &
+    \qw & \gate{R_2} & \gate{R_1} & \gate[wires=2]{QFT^{-1}} & \qw\rstick{\(\ket{a+b}_0\)} \\
+    %
+    \lstick{\(\ket{a}_1\)} \qw & \qw &
+    \gate{R_1} & \qw & \qw & \qw & \qw\rstick{\(\ket{a+b}_1\)} \\
+    %
+    \lstick{\(\ket{b}_0\)} \qw & \qw &
+    \ctrl{-1} & \ctrl{-2} & \qw & \qw & \qw\rstick{\(\ket{b}_0\)} \\
+    %
+    \lstick{\(\ket{b}_1\)} \qw & \qw &
+    \qw & \qw & \ctrl{-3} & \qw & \qw\rstick{\(\ket{b}_1\)} \\
+\end{quantikz}
+\end{center}
+
+\end{frame}
+
+% =====================================
+
+\begin{frame}{More on Arithmetical Operations}
+\(\star\) Quantum implementation of elementary arithmetic operations, Florio and Picca, \url{arxiv.org/ftp/quant-ph/papers/0403/0403048.pdf}
+
+
+\bigskip \(\star\) Programming Quantum Arithmetics, 
+\url{tsmatz.wordpress.com/2019/05/22/quantum-computing-modulus-add-subtract-multiply-exponent/}
+
+\bigskip 
+\(\star\star\) Quantum arithmetic with the Quantum Fourier Transform, Perez and Garcia-Escartin (2017), \url{arxiv.org/pdf/1411.5949.pdf}
+\end{frame}
+
+% =====================================
+
+\begin{frame}{Algorithms with QFT}
+QPE: eigenvalues estimation
+
+\url{qiskit.org/textbook/ch-algorithms/quantum-phase-estimation.html}
+
+\bigskip
+Shor: prime factorization
+
+\url{qiskit.org/textbook/ch-algorithms/shor.html}
+\end{frame}
+

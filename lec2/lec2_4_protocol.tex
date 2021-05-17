@@ -1,0 +1,240 @@
+\begin{frame}{The protocol (1)}
+\begin{quantikz}[]
+\lstick[wires=2]{Alice}\qw
+    & \gate{init(\ket{\psi})}
+    & \qw \\
+    \qw
+    & \qw
+    & \qw \\
+\lstick{Bob}\qw
+    & \qw
+    & \qw
+\end{quantikz}
+
+\bigskip Alice own the qubit in state \(\ket{\psi} = \alpha \ket{0} + \beta \ket{1}\)
+\end{frame}
+
+% =========================================
+
+\begin{frame}{The protocol (2)}
+    
+\begin{quantikz}[]
+\lstick[wires=2]{Alice}\qw
+    & \gate{init(\ket{\psi})}
+    & \qw \\
+    \qw
+    & \gate[wires=2]{bell}
+    & \qw\\
+\lstick{\(\ket{0}\)}\qw
+    & \qw
+    & \qw
+\end{quantikz}
+
+\bigskip Alice and Bob shares a Bell state \(\frac{1}{\sqrt{2}} (\ket{00} + \ket{11})\)
+\end{frame}
+
+% =========================================
+
+\input{lec2/lec2_4_1_composedgates}
+
+% =========================================
+
+\begin{frame}{The protocol (3)}
+    
+\begin{quantikz}[]
+\lstick[wires=2]{Alice}\qw
+    & \gate{init(\ket{\psi})}
+    & \ctrl{1} 
+    & \gate{H} 
+    & \qw \\
+    \qw
+    & \gate[wires=2]{bell}
+    & \targ{}
+    & \qw
+    & \qw\\
+\lstick{\(\ket{0}\)}\qw
+    & \qw
+    & \qw
+    & \qw
+    & \qw
+\end{quantikz}
+
+\bigskip Alice applies CNOT and H, the state becomes
+\begin{align*}
+    \frac{1}{2} \Big( & \ket{00}(\alpha \ket{0} + \beta \ket{1}) \\
+                    + & \ket{01}(\alpha \ket{1} + \beta \ket{0}) \\
+                    + & \ket{10}(\alpha \ket{0} - \beta \ket{1}) \\
+                    + & \ket{10}(\alpha \ket{1} - \beta \ket{0})\Big) 
+\end{align*}
+\end{frame}
+
+% =========================================
+
+\begin{frame}{The protocol (4)}
+    
+\begin{quantikz}[]
+\lstick[wires=2]{Alice}\qw
+    & \gate{init(\ket{\psi})}
+    & \ctrl{1} 
+    & \gate{H} 
+    & \meter{}
+    & \cw
+    & \cwbend{2}\\
+    \qw
+    & \gate[wires=2]{bell}
+    & \targ{}
+    & \qw
+    & \meter{}
+    & \cwbend{1} \\
+\lstick{\(\ket{0}\)}\qw
+    & \qw
+    & \qw
+    & \qw
+    & \qw
+    & \gate{X}
+    & \gate{Z}
+    & \qw
+\end{quantikz}
+
+\bigskip Alice measures and send the two classical bits, Bob adjusts its qubit according to the received bits:
+\begin{align*}
+    00 & \to I \\
+    01 & \to X \\
+    10 & \to Z \\
+    11 & \to ZX
+\end{align*}
+\end{frame}
+
+% =========================================
+
+\begin{frame}[fragile]{The code (2)}
+\begin{minted}{python}
+psi = random_statevector(2).data
+
+qr = QuantumRegister(3, 'q')
+crx = ClassicalRegister(1, 'crx')
+crz = ClassicalRegister(1, 'crz')
+qc = QuantumCircuit(qr, crx, crz)
+qc.initialize(psi, qr[0])
+qc.append(create_bell_circuit(), [qr[1], qr[2]])
+
+qc.cx(qr[0], qr[1])
+qc.h(qr[0])
+qc.measure(qr[0], crz)
+qc.measure(qr[1], crx)
+qc.x(qr[2]).c_if(crx, 1)
+qc.z(qr[2]).c_if(crz, 1)
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{The code (3)}
+\begin{minted}{python}
+sv_sim = Aer.get_backend('statevector_simulator')
+sv = execute(qc, sv_sim).result().get_statevector()
+\end{minted}
+
+\bigskip Is \code{sv} the state \( \ket{\psi} \otimes \ket{b_2} \otimes \ket{b_1} \)?
+\end{frame}
+
+% =========================================
+
+\begin{frame}[fragile]{The code (4)}
+
+What is we use deferred measurements? \bigskip
+
+\begin{minted}{python}
+qr = QuantumRegister(3, 'q')
+crx = ClassicalRegister(1, 'crx')
+crz = ClassicalRegister(1, 'crz')
+qc = QuantumCircuit(qr, crx, crz)
+qc.initialize(psi, qr[0])
+qc.append(create_bell_circuit(), [qr[1], qr[2]])
+
+qc.cx(qr[0], qr[1])
+qc.h(qr[0])
+qc.cx(qr[0], qr[2])
+qc.cz(qr[1], qr[2])
+qc.measure(qr[0], crz)
+qc.measure(qr[1], crx)
+\end{minted}
+\end{frame}
+
+% =========================================
+
+\begin{frame}{Running on real quantum computers}
+
+\begin{itemize}
+    \item Deferred measurement is mandatory;
+    \item How can I check if the state is exactly the one Alice wanted to send?
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Running on real quantum computers}
+
+\begin{itemize}
+    \item Deferred measurement is mandatory;
+    \item How can I check if the state is exactly the one Alice wanted to send?
+\end{itemize}
+
+\bigskip
+\begin{center}
+\begin{quantikz}[]
+\lstick{\(\ket{0}\)}\qw
+    & \gate{init}
+    & \gate[wires=3]{teleport}
+    & \qw \\
+\lstick{\(\ket{0}\)}\qw
+    & \qw
+    & \qw
+    & \qw \\
+\lstick{\(\ket{0}\)}\qw
+    & \qw
+    & \qw
+    & \gate{init^{-1}}
+    & \qw\rstick{\(\ket{0}\)}
+\end{quantikz}
+\end{center}
+
+\qquad Check if the last qubit is zero
+
+\end{frame}
+
+% =========================================
+
+\begin{frame}[fragile]{Inverse of \code{initialize} gate}
+
+\begin{minted}{python}
+from qiskit.extensions import Initialize
+psi = random_statevector(2).data
+
+init_gate = Initialize(psi)
+init_gate.label = 'init'
+
+inverse_init_gate = init_gate.gates_to_uncompute()
+
+qc = QuantumCircuit(1)
+qc.append(init_gate, [0])
+qc.append(inverse_init_gate, [0])
+sv = execute(qc, sv_sim).result().get_statevector()
+# sv is ALMOST ket zero
+\end{minted}
+
+\end{frame}
+
+% =========================================
+
+\begin{frame}[fragile]{Inverse of \code{initialize} gate}
+
+Be careful: \code{initialize} contains a non-linear \code{Reset} gate \bigskip
+
+\begin{minted}{python}
+init_gate = Initialize(psi)
+init_gate.inverse() # error
+
+inverse_init_gate = init_gate.gates_to_uncompute() # no reset
+init_wo_reset = inverse_init_gate.inverse()
+
+init_wo_reset.inverse() # ok
+\end{minted}
+
+\end{frame}
