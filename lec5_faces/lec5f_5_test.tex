@@ -1,8 +1,70 @@
 \begin{frame}[fragile]{Your turn!}
 \begin{minted}{python}
-def quantum_distance(G_0, G_1, G_test, tol=0.00001):
+def quantum_distance_circuit(G_0, G_1, G_test):
+
+    # calculate how many qubits are needed for the data register
+    qubit_per_feature = int(np.ceil(np.log2(len(G_0))))
+    
+    # zero padding and normalization
+    x_0 = normalize(zero_padding(G_0, qubit_per_feature))
+    x_1 = normalize(zero_padding(G_1, qubit_per_feature))
+    x_test = normalize(zero_padding(G_test, qubit_per_feature))
+    
+    # define the registers
+    qr_ancilla = QuantumRegister(1, 'anc')
+    qr_index = QuantumRegister(1, 'index')
+    qr_data = QuantumRegister(qubit_per_feature, 'data')
+    qr_class = QuantumRegister(1, 'class')
+    cr_ancilla = ClassicalRegister(1, 'cr_anc')
+    cr_class = ClassicalRegister(1, 'cr_class')
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Your turn!}
+\begin{minted}{python}
+    # initialize the circuit
+    qc = QuantumCircuit(qr_ancilla, qr_index, qr_data, qr_class, cr_ancilla, cr_class)
+    
+    # prepare initialization circuits
     # ...
-    return difference, label
+    
+    # initialize index and data registers
+    # ...
+    
+    # correlate the index with the class
+    # ...
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Your turn!}
+\begin{minted}{python}
+    # work on ancilla
+    # ...
+    # measure
+    qc.measure(qr_ancilla[0], cr_ancilla[0])
+    qc.measure(qr_class[0], cr_class[0])
+    return qc
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Your turn!}
+\begin{minted}{python}
+def quantum_distance(G_0, G_1, G_test, tol=0.00001):
+    SHOTS = 10000
+    qc = quantum_distance_circuit(G_0, G_1, G_test)
+    counts = execute(qc, Aer.get_backend('qasm_simulator'), shots=SHOTS).result().get_count()
+    
+    # add missing values
+    keys = ['0 0', '0 1', '1 0', '1 1'] # LSB = Ancilla, MSB = Class
+    for key in keys:
+        if key not in counts:
+            counts[key] = 0
+
+    # calculate distance
+    # ...
+    difference = (distance_happy - distance_sad) / SHOTS
+    the_difference = 0 if np.abs(difference) <= tol else difference
+    return difference, ["EQUAL", "Y1", "Y0"][int(np.sign(the_difference))]
 \end{minted}
 \end{frame}
 
@@ -47,7 +109,5 @@ print(f"\nClassified {correct} correctly and {wrong} wrongly")
 \end{frame}
 
 \begin{frame}{Your turn!}
-Download the starter code. The file \code{dataset.json} contains 26 elements, representing the path of an image, a path of its file containing the landmark points and its label. 
-
-\bigskip Estimate the accuracy of both classical and quantum classifier. 
+Estimate the accuracy of both classical and quantum classifier with IRIS.
 \end{frame}

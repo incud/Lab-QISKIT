@@ -1,0 +1,37 @@
+\section{Measure interpretation}
+\SectionPage{}
+
+\begin{frame}[fragile]{Classical cost function}
+Define the classical cost function for MaxCut:
+
+\begin{minted}{python}
+def cost_function(solution):
+    cuts = 0
+    # hardcode edges variable into this function 
+    # or reference from the outside
+    for (i, j) in edges:
+        is_edge_cut = solution[i] != solution[j]
+        if is_edge_cut:
+            cuts += 1;
+    return cuts
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Estimate the energy from the samples}
+Estimate the energy for parameters \(\gamma, \beta\). This is sometimes denoted with \(\expval{C}{\vec{\gamma}, \vec{\beta}}\) where \(C\) is the classical cost function. \bigskip
+
+\begin{minted}{python}
+def estimate_energy(params):
+    gamma_1 = params[0], beta_1 = params[1]
+    # build circuit qc
+    # ...
+    SHOTS = 10000
+    counts = execute(qc, qasm_sim, shots=SHOTS)
+        .result().get_counts()
+    # NOTE: invert the order of measurements
+    mean_energy = 0
+    for measure, freq in counts.items():
+        mean_energy += cost_function(measure)*freq/SHOTS
+    return mean_energy
+\end{minted}
+\end{frame}

@@ -90,17 +90,35 @@ Any variational circuit is a QNN.
 \end{frame}
 
 
-\begin{frame}{Barren plateau}
+%\begin{frame}{Barren plateau}
+%
+%\begin{block}{Barren Plateau}
+%When minimizing the cost function, we might have exponentially %vanishing gradients, known as barren plateau landscapes. In that %case, the network cannot be efficiently trained.
+%\end{block}
+%
+%\begin{itemize}
+%    \item Depends on the network architecture (Cerezo et al., %2020);
+%    \item Depends on the feature map (Abbas et al., 2020). 
+%\end{itemize}
+%\end{frame}
 
-\begin{block}{Barren Plateau}
-When minimizing the cost function, we might have exponentially vanishing gradients, known as barren plateau landscapes. In that case, the network cannot be efficiently trained.
-\end{block}
 
-\begin{itemize}
-    \item Depends on the network architecture (Cerezo et al., 2020);
-    \item Depends on the feature map (Abbas et al., 2020). 
-\end{itemize}
+
+\begin{frame}[fragile]{Your turn!}
+Try the VQC. \bigskip
+
+\begin{minted}{python}
+from qiskit.ml.datasets import iris
+sample_train, training_input, test_input, class_labels = 
+    iris(training_size=40, test_size=10, n=4)
+# len(training_input[key]) == 40 for key in ['A', 'B', 'C']
+# len(test_input[key]) == 10 for key in ['A', 'B', 'C']
+
+# fix qiskit.ml.datasets.iris code line 30: 
+# test_size=test_size*len(class_labels)
+\end{minted}
 \end{frame}
+
 
 
 \begin{frame}[fragile]{Your turn!}

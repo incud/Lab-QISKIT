@@ -1,0 +1,53 @@
+\section{The QAOA circuit}
+\SectionPage{}
+
+\begin{frame}{The Cost operator}
+Implement the circuit \(U_\gamma = e^{i\gamma H}\). The interactions \(\gamma ZZ\) are performed by the circuit:
+\begin{center}
+    \begin{quantikz}
+    \qw & \ctrl{1} & \qw                & \ctrl{1} & \qw \\
+    \qw & \targ{}  & \gate{Rz(2\gamma)} & \targ{}  & \qw \\
+    \end{quantikz}
+\end{center}
+
+\alert{Your turn}: check the math by comparing the result given by multiplying analytically \(\gamma Z \otimes Z\) as \code{gamma*np.kron(Z,Z)} and implementing this circuit and retrieving the unitary with \code{unitary\_simulator}.
+\end{frame}
+
+\begin{frame}{The Mixing operator}
+Implement the circuit \(U_\beta\):
+\begin{center}
+    \begin{quantikz}
+    \qw & \gate{Rx(2*\beta)} & \qw \\
+    \qw & \gate{Rx(2*\beta)} & \qw 
+    \end{quantikz}
+\end{center}
+\end{frame}
+
+\begin{frame}{The QAOA circuit for \(p=1\)}
+Implement the circuit \(U_\beta\):
+\begin{center}
+    \begin{quantikz}
+    \lstick{\(\ket{0}\)} \qw & \gate{H} & \gate[wires=2]{\gamma_1 ZZ} & \qw & \gate{Rx(2\beta_1)} & \meter{} \\
+    \lstick{\(\ket{0}\)} \qw & \gate{H} & \qw & \gate[wires=2]{\gamma_1 ZZ} & \gate{Rx(2\beta_1)} & \meter{} \\
+    \lstick{\(\ket{0}\)} \qw & \gate{H} & \qw & \qw & \gate{Rx(2\beta_1)} & \meter{} 
+    \end{quantikz}
+\end{center}
+
+The state at the end of this circuit is sometimes denoted with \(\ket{\vec{\gamma}, \vec{\beta}}\).
+\end{frame}
+
+\begin{frame}[fragile]{Parametrized circuits in QISKIT}
+\begin{minted}{python}
+from qiskit.circuit import Parameter
+alpha = Parameter('a')
+beta = Parameter('b')
+
+qaoa_circuit = QuantumCircuit(1, 1)
+qaoa_circuit.rx(alpha, 0)
+qaoa_circuit.rx(beta, 0)
+qaoa_circuit.measure(0, 0)
+
+qc = qaoa_circuit.bind_parameters({
+    alpha: 0.123, beta: 0.456})
+\end{minted}
+\end{frame}

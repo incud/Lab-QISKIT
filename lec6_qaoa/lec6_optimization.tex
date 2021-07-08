@@ -1,0 +1,36 @@
+\section{Optimization phase}
+\SectionPage{}
+
+\begin{frame}[fragile]{Optimization phase}
+\begin{minted}{python}
+from scipy.optimize import minimize
+x0 = np.array([0.1, 0.2])
+bnds = ((0,2*pi),)*2
+res = minimize(estimate_energy, x0, method='COBYLA', bounds=bnds)
+
+print("Best mean energy: ", estimate_energy(res.x))
+print("Best gamma, beta: ", res.x)
+\end{minted}
+\end{frame}
+
+
+\begin{frame}[fragile]{Optimization phase}
+Execute one last time with the best parameters:\bigskip
+
+\begin{minted}{python}
+qc = qaoa_circuit.bind_parameters({
+    gamma: res.x[0], beta: res.x[1]})
+counts = execute(qc, Aer.get_backend("qasm_simulator"), 
+    shots=SHOTS).result().get_counts()
+best_solution = None
+for solution, freq in counts.items():
+    if best_solution == None:
+        best_solution = solution
+    if freq > counts[best_solution]:
+        best_solution = solution
+print("Best solution is: ", best_solution)
+\end{minted}
+\end{frame}
+
+
+
